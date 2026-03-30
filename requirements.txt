@@ -1,0 +1,25 @@
+# Core AI
+anthropic>=0.40.0        # The official Anthropic SDK — talks to Claude API
+
+# Configuration & validation
+pydantic>=2.7.0          # Validates our config — catches mistakes early
+pydantic-settings>=2.3.0 # Reads config from env vars and YAML automatically
+pyyaml>=6.0.1            # Reads YAML files (our agent.yaml config)
+jsonschema>=4.22.0       # Validates agent.yaml against our schema
+
+# CLI (command-line interface)
+typer>=0.12.0            # Makes beautiful CLI commands easily
+rich>=13.7.0             # Pretty, coloured terminal output
+
+# Environment variables / secrets
+python-dotenv>=1.0.1     # Reads our .env file (where API keys live)
+
+# Logging
+structlog>=24.2.0        # Structured JSON logging (REQ-43)
+
+# Async support
+anyio>=4.4.0             # Async utilities (agent needs to do many things at once)
+
+# Testing
+pytest>=8.2.0            # Our test runner
+pytest-asyncio>=0.23.7   # Lets us test async code

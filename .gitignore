@@ -1,0 +1,52 @@
+# =============================================================
+# .gitignore — tells Git which files to never track
+# =============================================================
+
+# --- Secrets (MOST IMPORTANT — never commit these) ---
+.env
+.env.*
+*.key
+secrets/
+
+# --- Python virtual environment ---
+# This folder is huge (hundreds of MB) and machine-specific.
+# Anyone cloning your project runs: pip install -r requirements.txt
+# That recreates it. No need to store it.
+.venv/
+venv/
+env/
+
+# --- Python compiled files ---
+# Python creates these automatically when it runs your code.
+# They are machine-generated and not needed in Git.
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# --- Logs (auto-generated at runtime) ---
+logs/
+*.log
+
+# --- Test & coverage output ---
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- Build & packaging ---
+dist/
+build/
+*.egg-info/
+
+# --- OS-specific junk files ---
+.DS_Store        # Mac creates this in every folder
+Thumbs.db        # Windows creates this
+desktop.ini
+
+# --- IDE files ---
+# Your editor settings are personal — don't force them on others
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,161 @@
+# =============================================================
+# agent.yaml — Master configuration file for the AI Agent
+# Version: 2.0
+#
+# HOW THIS WORKS:
+#   - This file sets all default values
+#   - Environment variables OVERRIDE anything here
+#   - Pattern for env vars: AGENT_<SECTION>_<KEY>
+#   - Example: AGENT_MODEL_PROVIDER=ollama overrides model.provider below
+#
+# TO SWITCH MODELS: just change model.provider below.
+#   Options: "anthropic" | "ollama" | "openai_compatible"
+# =============================================================
+
+version: 2
+
+# -------------------------------------------------------------
+# MODEL — which AI brain to use
+# -------------------------------------------------------------
+model:
+  # Which provider to use. Start with "anthropic" (free credits).
+  # Switch to "ollama" for 100% free local inference later.
+  provider: "anthropic"
+
+  # The specific model name.
+  # For anthropic: "claude-haiku-4-5-20251001" (cheap), "claude-sonnet-4-6" (powerful)
+  # For ollama:    "llama3.2", "codellama", "mistral", "deepseek-coder"
+  name: "claude-haiku-4-5-20251001"
+
+  # Maximum tokens the model can use in one response.
+  # Think of tokens as "word pieces" — roughly 1 token = 0.75 words.
+  # Higher = longer responses but costs more.
+  max_tokens: 4096
+
+  # "Temperature" controls creativity vs precision.
+  # 0.0 = very precise and deterministic (good for code)
+  # 1.0 = creative and varied (good for writing)
+  temperature: 0.2
+
+  # If using ollama, it runs here by default (on your own machine)
+  ollama_base_url: "http://localhost:11434"
+
+  # If using any OpenAI-compatible API (Groq, LM Studio, etc.)
+  # Put the base URL here. Leave empty if not using.
+  openai_compatible_base_url: ""
+
+
+# -------------------------------------------------------------
+# MEMORY — how the agent remembers things across sessions
+# (We build this in Phase 2 — these are placeholder settings)
+# -------------------------------------------------------------
+memory:
+  # "in_memory" = fast but forgotten when agent stops (Phase 1)
+  # "chroma"    = saved to disk, persists forever (Phase 2)
+  backend: "in_memory"
+
+  # Where to save memory on disk (used when backend = "chroma")
+  path: "./data/memory"
+
+  # How many past memories to retrieve when the agent needs context
+  top_k_results: 5
+
+
+# -------------------------------------------------------------
+# TOOLS — what capabilities the agent has
+# (We build the actual tools in Phase 2)
+# -------------------------------------------------------------
+tools:
+  # Master switch per tool — set false to disable completely
+  shell:
+    enabled: true
+    # How long to wait before giving up on a shell command (seconds)
+    timeout_seconds: 30
+
+  file_io:
+    enabled: true
+    # The agent cannot read/write files OUTSIDE this directory
+    # "." means the current project directory — safe default
+    allowed_base_path: "."
+
+  web_search:
+    enabled: true
+    timeout_seconds: 15
+
+  web_browse:
+    enabled: true
+    timeout_seconds: 30
+
+
+# -------------------------------------------------------------
+# SAFETY — human-in-the-loop and guardrails (REQ-31, 32, 33)
+# -------------------------------------------------------------
+safety:
+  # If true, the agent PAUSES and asks you before doing
+  # anything dangerous (deleting files, running risky commands)
+  require_confirmation_for_destructive_actions: true
+
+  # Auto-approve safe actions without asking you every time
+  # Add actions here that you trust the agent to do freely
+  auto_approve_actions:
+    - "read_file"
+    - "web_search"
+    - "list_directory"
+
+  # Prompt injection protection — detect if web content or
+  # tool results try to hijack the agent's instructions
+  prompt_injection_detection: true
+
+
+# -------------------------------------------------------------
+# RATE LIMITS — protect against runaway costs (REQ-48, 49)
+# -------------------------------------------------------------
+rate_limits:
+  # Maximum AI model calls per minute
+  # Prevents a bug from burning through your API credits
+  max_llm_calls_per_minute: 20
+
+  # Maximum tool calls per minute (shell, web, file, etc.)
+  max_tool_calls_per_minute: 60
+
+  # Token budget per single task (0 = unlimited)
+  max_tokens_per_task: 50000
+
+  # Token budget per session (0 = unlimited)
+  max_tokens_per_session: 200000
+
+
+# -------------------------------------------------------------
+# OBSERVABILITY — logging and monitoring (REQ-41, 43)
+# -------------------------------------------------------------
+observability:
+  # Log level: "DEBUG" | "INFO" | "WARNING" | "ERROR"
+  # DEBUG = see everything (noisy but useful when developing)
+  # INFO  = normal operation messages
+  log_level: "INFO"
+
+  # Where to write log files
+  log_file: "./logs/agent.log"
+
+  # Structured JSON logs (machine-readable, works with ELK/Loki)
+  structured_logging: true
+
+  # OpenTelemetry tracing (Phase 7 — leave empty for now)
+  otel_endpoint: ""
+
+
+# -------------------------------------------------------------
+# AGENT BEHAVIOUR — personality and operation mode
+# -------------------------------------------------------------
+agent:
+  # Name shown in logs and CLI output
+  name: "AI Agent"
+
+  # How many times the agent tries to self-correct before giving up
+  max_self_correction_attempts: 3
+
+  # How many steps deep a planning chain can go
+  max_planning_depth: 10
+
+  # Show the agent's thinking/planning steps to the user
+  show_thinking: true
