@@ -1,25 +1,28 @@
-# Core AI
-anthropic>=0.40.0        # The official Anthropic SDK — talks to Claude API
+# =============================================================
+# requirements.txt — All Python dependencies
+# Install with: pip install -r requirements.txt
+# =============================================================
 
-# Configuration & validation
-pydantic>=2.7.0          # Validates our config — catches mistakes early
-pydantic-settings>=2.3.0 # Reads config from env vars and YAML automatically
-pyyaml>=6.0.1            # Reads YAML files (our agent.yaml config)
-jsonschema>=4.22.0       # Validates agent.yaml against our schema
+# --- Phase 1: Core AI & Config ---
+anthropic>=0.40.0           # Anthropic Claude API SDK
+pydantic>=2.7.0             # Data validation
+pydantic-settings>=2.3.0    # Config from env vars
+pyyaml>=6.0.1               # Read agent.yaml
+jsonschema>=4.22.0          # Validate config schema
+typer>=0.12.0               # CLI interface
+rich>=13.7.0                # Pretty terminal output
+python-dotenv>=1.0.1        # Read .env file
+structlog>=24.2.0           # Structured JSON logging
+anyio>=4.4.0                # Async utilities
+pytest>=8.2.0               # Test runner
+pytest-asyncio>=0.23.7      # Async test support
 
-# CLI (command-line interface)
-typer>=0.12.0            # Makes beautiful CLI commands easily
-rich>=13.7.0             # Pretty, coloured terminal output
+# --- Phase 2: Tools & Memory ---
+duckduckgo-search>=6.2.0    # Free web search (no API key needed)
+httpx>=0.27.0               # Async HTTP client (for read_url tool)
+beautifulsoup4>=4.12.0      # HTML parser (strips tags from web pages)
+chromadb>=0.5.0             # Vector database for persistent memory
 
-# Environment variables / secrets
-python-dotenv>=1.0.1     # Reads our .env file (where API keys live)
-
-# Logging
-structlog>=24.2.0        # Structured JSON logging (REQ-43)
-
-# Async support
-anyio>=4.4.0             # Async utilities (agent needs to do many things at once)
-
-# Testing
-pytest>=8.2.0            # Our test runner
-pytest-asyncio>=0.23.7   # Lets us test async code
+# --- Phase 2: Optional (for Ollama / OpenAI-compatible APIs) ---
+# Uncomment if you want to use Ollama or Groq:
+# openai>=1.30.0            # OpenAI SDK (also used for Ollama/Groq)
