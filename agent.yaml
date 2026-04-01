@@ -50,15 +50,26 @@ model:
 # (We build this in Phase 2 — these are placeholder settings)
 # -------------------------------------------------------------
 memory:
-  # "in_memory" = fast but forgotten when agent stops (Phase 1)
-  # "chroma"    = saved to disk, persists forever (Phase 2)
-  backend: "in_memory"
+  # "in_memory" = fast but forgotten when agent stops (development/testing)
+  # "chroma"    = saved to disk, persists forever (default from Phase 3 onwards)
+  backend: "chroma"
 
-  # Where to save memory on disk (used when backend = "chroma")
+  # Where ChromaDB saves its files on disk.
+  # A folder called 'data/memory' will be created automatically.
   path: "./data/memory"
 
-  # How many past memories to retrieve when the agent needs context
+  # How many past memories to retrieve and inject into the prompt
   top_k_results: 5
+
+  # Project namespace — memories are isolated per project.
+  # Change this when working on different projects so memories don't mix.
+  # Example: "my-web-app", "client-api", "personal-scripts"
+  project: "ai-agent-dev"
+
+  # How similar a memory must be to be retrieved (0.0 to 1.0)
+  # Higher = stricter matching, fewer results
+  # Lower  = looser matching, more results
+  similarity_threshold: 0.3
 
 
 # -------------------------------------------------------------

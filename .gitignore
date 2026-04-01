@@ -50,3 +50,9 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# --- Agent-generated cache files ---
+.agent_repo_cache.json
+
+# --- ChromaDB memory database ---
+data/

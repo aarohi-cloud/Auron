@@ -337,11 +337,20 @@ class _ChromaBackend(_MemoryBackend):
         results = collection.query(
             query_texts=[query],
             n_results=min(top_k, collection.count()),
+            include=["documents", "metadatas", "distances"],
         )
 
         memories = []
         if results["ids"] and results["ids"][0]:
             for i, mem_id in enumerate(results["ids"][0]):
+                # ChromaDB returns a "distance" (lower = more similar).
+                # We convert to similarity: similarity = 1 - distance
+                # Then filter by our threshold.
+                distance = results["distances"][0][i]
+                similarity = 1.0 - distance
+                if similarity < 0.0:  # cosine can go slightly negative
+                    similarity = 0.0
+
                 meta = results["metadatas"][0][i]
                 content = results["documents"][0][i]
                 memories.append(Memory(

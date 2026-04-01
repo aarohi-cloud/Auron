@@ -87,9 +87,14 @@ class ModelConfig(BaseModel):
 class MemoryConfig(BaseModel):
     """Settings for how the agent stores memories."""
 
-    backend: Literal["in_memory", "chroma"] = "in_memory"
+    backend: Literal["in_memory", "chroma"] = "chroma"
     path: str = "./data/memory"
     top_k_results: int = Field(default=5, ge=1, le=50)
+    # Project namespace — keeps memories from different projects separate
+    project: str = "default"
+    # Minimum similarity score (0.0–1.0) for a memory to be retrieved
+    # ChromaDB returns a distance score; we convert it to similarity
+    similarity_threshold: float = Field(default=0.3, ge=0.0, le=1.0)
 
 
 class ShellToolConfig(BaseModel):

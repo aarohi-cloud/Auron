@@ -30,7 +30,12 @@ from agent.tools.base import BaseTool, ToolResult
 from agent.tools.file_io import ReadFileTool, WriteFileTool, ListDirectoryTool, FileExistsTool
 from agent.tools.shell import ShellTool
 from agent.tools.web_search import WebSearchTool, ReadURLTool
-from agent.memory.store import MemoryStore
+from agent.tools.repo_tool import (
+    ScanRepositoryTool, FindInRepoTool, RepoSummaryTool,
+    WhatImportsTool, WhatDependsOnTool,
+)
+from agent.memory.manager import MemoryManager
+from agent.memory.store import Memory
 
 logger = structlog.get_logger(__name__)
 
@@ -90,7 +95,8 @@ class Agent:
         self.llm_client = LLMClient(config=self.config.model)
         self.conversation_history: list[Message] = []
         self.stats = SessionStats()
-        self.memory = MemoryStore(project=project)
+        # Initialise memory manager for this project
+        self.memory = MemoryManager(project=project)
         self._tools: dict[str, BaseTool] = {}
         self._register_default_tools()
 
@@ -114,6 +120,13 @@ class Agent:
             self.register_tool(WebSearchTool())
         if tools_config.web_browse.enabled:
             self.register_tool(ReadURLTool())
+
+        # Repository intelligence tools (always enabled)
+        for tool in [
+            ScanRepositoryTool(), FindInRepoTool(), RepoSummaryTool(),
+            WhatImportsTool(), WhatDependsOnTool(),
+        ]:
+            self.register_tool(tool)
 
     def register_tool(self, tool: BaseTool) -> None:
         self._tools[tool.name] = tool
@@ -277,13 +290,24 @@ class Agent:
             return False
 
     def _build_system_prompt(self, user_message: str) -> str:
-        memories_text = self.memory.format_for_prompt(user_message)
+        """
+        Build the system prompt, injecting relevant memories automatically.
+        The agent 'remembers' past sessions through this injection.
+        """
+        memories_text = self.memory.build_context_for(user_message)
         if memories_text:
             return f"{self.system_prompt}\n\n{memories_text}"
         return self.system_prompt
 
-    def remember(self, content: str, category: str = "fact") -> None:
-        self.memory.save(content, category=category)
+    def remember(self, content: str, category: str = "fact") -> Memory:
+        """
+        Save something to long-term persistent memory.
+
+        Usage:
+            agent.remember("This project uses Poetry", "fact")
+            agent.remember("User prefers type hints everywhere", "preference")
+        """
+        return self.memory.save(content, category=category)
 
     def clear_history(self) -> None:
         self.conversation_history = []
